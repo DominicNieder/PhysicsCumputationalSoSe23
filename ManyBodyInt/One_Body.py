@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit
 
 
-class Heavy_Body():
+class Physical_Obj():
     """
     The class of a Planet/Sun
     """
@@ -16,3 +16,4 @@ class Heavy_Body():
         self.velocity = [velocity]
         self.mass = mass
         pass
+    

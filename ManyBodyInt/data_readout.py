@@ -1,10 +1,16 @@
+"""
+Here functions for reading text/data files are located
+"""
+import os
+with os.scandir("/home/dompo/Documents/Studium/ComputationalPhysics_MaterialSciencesSoSe2023/ManyBodyInt") as dir:
+    for entry in dir:
+        if entry.is_file:
+            print(entry.name)
 
-
-with open(path_massNnames, "r") as mass_data:
-
-
-    with open(path_posNvel,"r") as planets_data:
-        for line in range(len(planets_data)/2):
+"""
+def read(path:str):
+    with open(path,"r") as data:
+        for line in range(len(data)/2):
             pos = []
             vel = []
             pos.append(float(planets_data[line].split()[0]))
@@ -20,3 +26,4 @@ with open(path_massNnames, "r") as mass_data:
                 comp = ine2.split()
                 if comp[1] == name:
                     mass = float(comp[0])
+"""
