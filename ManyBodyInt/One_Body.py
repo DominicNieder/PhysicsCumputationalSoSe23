@@ -1,8 +1,9 @@
 import numpy as np
 from numba import njit
+import Global_System as GS
+import Forces
 
-
-class Physical_Obj():
+class Atom():
     """
     The class of a Planet/Sun
     """
@@ -12,11 +13,17 @@ class Physical_Obj():
         made up of (Mass) positon (dim=3) and velocity (dim=3)
         """
         self.name = name
-        self.
+        self.current_pos = position
+        self.current_vel = velocity
         self.positions = [position]
         self.velocity = [velocity]
         self.mass = mass
         pass
 
     def Update_pos(self):
-    
+        """
+        Updates the position value
+        """
+        
+        pass
+        

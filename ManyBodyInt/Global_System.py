@@ -18,23 +18,26 @@ class Many_Body_System():
         self.all_current_velocity = []
         pass
 
-    def Initialize_many_bodies(self, data_path:str) -> None:
+    def Initialize_System(self, data_path:str) -> None:
         """
         Identifies all the inital conditions of the many body system;
-        -reading the data from external files 
+        -reading the data from external file 
         -allocating an obj for all given in the data file 
         """
         init_variables , names = data_readout.readfile(data_path)
         self.obj_names = names
         for i in range(len(init_variables)):
-            self.Initializing_Body(init_variables[i][0],init_variables[i][1],init_variables[i][2])
+            obj_info = init_variables[i]
+            self.all_current_position.append(obj_info[0])
+            self.all_current_velocity.append(obj_info[1])
+            self.Initializing_Body(obj_info[0] ,obj_info[1],obj_info[2])
         pass
 
-    def Initializing_Body(self, position, velocity, mass, name) -> None:
+    def Initializing_Object(self, position, velocity, mass, name) -> None:
         """
         Initializes the object of a single body 
         """
-        one_body = Physical_Obj(position, velocity, mass, name)
+        one_body = one_body.Atom(position, velocity, mass, name)
         self.heavy_objects.append(one_body)
         pass
 
