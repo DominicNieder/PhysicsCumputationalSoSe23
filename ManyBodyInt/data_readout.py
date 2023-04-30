@@ -77,6 +77,6 @@ def Read_File_pos_vel_mass(path_1:str):
     return(groups, names)
 
 
-
+# here I can try the different functions by them selfes
 if __name__ == "__main__":
-    readfile_pos_vel_mass("/home/dompo/Documents/Studium/ComputationalPhysics_MaterialSciencesSoSe2023/ManyBodyInt/PlanetData/planets.dat")
+    pass
