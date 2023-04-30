@@ -8,6 +8,7 @@ import numpy as np
 import data_readout as data_readout
 from One_Body import Physical_Obj 
 import Forces
+
 # maybe needed in __init__: , file_path1:str, mass_pos, name_pos, file_path2:str=None, pos_pos, vel_pos
 class Many_Body_System(object):
     def __init__(self:object) -> None:
@@ -21,19 +22,20 @@ class Many_Body_System(object):
         self.number_of_obj:int = None
         self.all_current_position = []
         self.all_current_velocity = []
+        self.all_position = []
+        self.all_velocity = []
         pass
     
     def Movement(self):
         """
         Moves all objects of the system one time-stepp further
         """
-        i=0
         force_matrix = self.Force_Matrix()
-        for obj in self.heavy_objects:
+        for i in range(self.number_of_obj):
             total_force = sum(force_matrix[i])
-            total_acc = total_force/self.all_mass[i]
-            obj.Update(total_acc)
-            i+=1
+            total_acc = total_force/self.all_mass[i]  
+            self.all_position.append(self.all_current_position[i])
+
         pass
 
     @njit
@@ -84,7 +86,7 @@ class Many_Body_System(object):
         """
         Initializes the object of a single body 
         """
-        one_body = one_body.Atom(position, velocity, mass, name)
+        one_body = Physical_Obj.Atom(position, velocity, mass, name)
         self.heavy_objects.append(one_body)
         pass
 

@@ -3,10 +3,13 @@ from numba import njit
 import Integration_Schemes
 import Forces
 
-class Atom(object):
-    """
-    The class of a Planet/Sun
-    """
+# First I thought that I need to simulate planets and planets are objects so I will have the 
+# object class of a panet or more generally speaking of an Atom but I notice that all these 
+# variables could also be stored in the System so I wondered if the object "Atom" would be 
+# needed at all, I will try without this object for now.
+# Speaking from the perspective of spezial relativity I think it would make more sence with 
+# the "Atom" object. This would be a completly different piece of cake...
+class Atom(object): 
     def __init__(self:object, mass:float, position:list=None, velocity:list=None, name:str=None) -> None:
         """
         Collection necessary conditions for a planet: Phasespace variables (dim)
