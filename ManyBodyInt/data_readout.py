@@ -19,17 +19,8 @@ def find_files(path:str) -> list:
                 files.append(entry.name)
     return(files)
 
-# this function was realised with the idea to read many data files and to be able to access the data
-# freely afterwards - though I then decided to leave this for futer implementation if needed;
-# Chose to reorganize the data into one file
-def Read_Files(files:list, path) -> list:
-    """
-    Reads all the data files from the names given in "files".
-    Copies the data into list. Saves all the data from all files in a list 
-    of lists (alphabetical order of "files").
-    """
-    pass
 
+# This function is not needed, as all variables are seved in one file now...
 def Read_Dir(path_1:str) -> list:
     print("reading directory...")
     if os.path.isfile(path_1):
@@ -48,10 +39,10 @@ def Read_Dir(path_1:str) -> list:
 def Read_File_pos_vel_mass(path_1:str):
     """
     Finds all positions velocities and mass of all objects. Rerturns objects in the form of
-    [[pos_xyz, vel_xyz, mass], [...], ...], [name_1, name_2, ...]
+    [[xyz, v_xyz, mass], [...],... ], [name_1, name_2, ...]
     """
     with open(path_1, "r") as data_1:
-        groups:list = []  # has all the necessary variables of all objects []
+        groups:list = []  # hold list of list of variables of all objects []
         names:list = []  # the index of names fitts to the variables in groups
         i = 0
         print("    reading data of file...")

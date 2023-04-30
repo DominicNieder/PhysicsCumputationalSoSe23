@@ -18,13 +18,13 @@ def Gravitation_pot(pos_self:np.array, pos_2:np.array, mass_1:float, mass_2:floa
     """
     G = 6.67408*10**(-11)
     r_12:float = np.linalg.norm(pos_self-pos_2,pos_self-pos_2)
-    e_pot
+    e_pot = -G*mass_1*mass_2/r_12
     return(e_pot)  # taken from the exercise sheet
 
 @njit 
-def Gravitational_force(pos_self:np.array, pos_2:np.array, mass_self:float, mass_2:float):
+def Gravitational_force(pos_self:np.array, pos_2:np.array, mass_self:float, mass_2:float) ->np.array:
     """
-    Calculates and returns the gravitational Force (vector) between 2 objects
+    Calculates and returns the gravitational Force (vector, np.arrayarray) between 2 objects
     """
     G = 6.67408*10**(-11)
     r_12_vec:np.array = pos_self-pos_2
@@ -33,7 +33,3 @@ def Gravitational_force(pos_self:np.array, pos_2:np.array, mass_self:float, mass
     force =G*mass_2*mass_self/r_12_pow3 *r_12_vec   # calculated via -grad(Gravitation_pot)
 
     return(force)
-@njit 
-def Force_to_acc(force:np.array, self_mass):
-    acc = force/self_mass
-    return(acc)

@@ -29,7 +29,7 @@ def Velvet_Algorithem(time_stepp:float, pos:np.array, vel_0:np.array, acc:np.arr
     from the former position and current position;
 
     """
-    if fomer_pos=None:
+    if fomer_pos==None:
         return(Velocity_Velvet_posAlgorithem(time_stepp, pos, vel_0, acc))
     else:
         upd_pos = 2*pos-fomer_pos + time_stepp*time_stepp*acc
@@ -49,6 +49,7 @@ def Velocity_Velvet_posAlgorithem(time_stepp:float, pos:np.array, vel:np.array, 
     """
     upd_pos = pos + vel*time_stepp + time_stepp*time_stepp/2*acc
     return(upd_pos)
+
 @njit
 def Velocity_Velvet_velAlgorithem(time_stepp:float, vel:np.array, acc:np.array, later_acc:np.array):
     """
