@@ -6,15 +6,15 @@ from numba import njit
 import sys
 import numpy as np
 import data_readout as data_readout
-from One_Body import Physical_Obj 
+from One_Body import Atom 
 import Forces
+import Integration_Schemes 
 
 # maybe needed in __init__: , file_path1:str, mass_pos, name_pos, file_path2:str=None, pos_pos, vel_pos
 class Many_Body_System(object):
     def __init__(self:object) -> None:
         """
-        The time stepp of the System pertubation needs to be given
-        The list of all the objects can be found here and carries all variables for all objects.
+        The System calss object contains all necessary variables of all objects
         """
         self.heavy_objects = []  # here a list of all the objects are stored
         self.obj_names = []   # names of the objects
@@ -22,31 +22,99 @@ class Many_Body_System(object):
         self.number_of_obj:int = None
         self.all_current_position = []
         self.all_current_velocity = []
-        self.all_position = []
-        self.all_velocity = []
+        self.all_current_acc = []
+        self.all_ever_position = []
+        self.all_ever_velocity = []
+        self.all_ever_acc = []
         pass
     
-    def Movement(self):
+    def Update_Movement(self, time_stepp:float=1,integration_method:str="Velocity Verlet"):
         """
         Moves all objects of the system one time-stepp further
         """
-        force_matrix = self.Force_Matrix()
-        for i in range(self.number_of_obj):
-            total_force = sum(force_matrix[i])
-            total_acc = total_force/self.all_mass[i]  
-            self.all_position.append(self.all_current_position[i])
+        if integration_method == "Velocity Verlet": 
+            self.Movement_by_Velocity_Verlet(time_stepp)
+        elif integration_method == "Verlet":
+            self.Movement_by_Verlet(time_stepp)
+        elif integration_method == "Euler":
+            self.Movement_by_Euler(time_stepp)
+    
+        pass
 
+    def Movement_by_Verlet(self, time_stepp:float) -> None:
+        """
+        Updates velocity and position of one time-stepp using the Verlet algorithm.
+        The first time stepp needs to be done with Euler or Velocity Verlet
+        """
+        self.Force_Matrixs(time_stepp)
+        if len(self.all_ever_position) == 0:  # checking if former position is available; 
+                self.Movement_by_Velocity_Verlet(time_stepp)
+        else:
+            next_pos_list = []
+            next_vel_list = []
+            for i in range(self.number_of_obj):  # I Noticed now: Maybe with arrays the formloop can be avoided... I hunch, I dont know yet
+                next_pos,next_vel = Integration_Schemes.Verlet_Algorithem(
+                    time_stepp, self.all_current_position[i], self.all_current_velocity[i], self.all_ever_position[-2][i]
+                )
+                next_pos_list.append(next_pos)
+                next_vel_list.append(next_vel)
+            self.all_current_position = next_pos_list
+            self.all_current_velocity = next_vel_list
+            self.all_ever_position.append(next_pos_list)
+            self.all_ever_velocity.append(next_vel_list)
+        pass
+
+    def Movement_by_Velocity_Verlet(self, time_stepp) -> None:
+        """
+        Determines acc andu Updates velocity and postion 
+        from timestepp n -> n+1 with Velocity Verlet
+        """
+        if len(self.all_ever_acc) < len(self.all_current_position):  # force matrix only needs to be calculated for 1. timestepp
+            self.Force_Matrix()      #Appends acceleration of n      
+        next_pos = []
+        for i in range(self.number_of_obj):    
+            next_pos.append(Integration_Schemes.Velocity_Verlet_posAlgorithem(time_stepp,
+                self.all_current_position[i], self.all_current_velocity[i], self.all_current_acc[i] 
+                ))
+        self.all_current_position = next_pos
+        self.all_ever_position.append(self.all_current_position)
+        self.Force_Matrix()  # Appends acceleration timestepp of n+1
+        next_vel = []
+        for i in range(self.number_of_obj): 
+            next_vel.append(Integration_Schemes.Velocity_Verlet_velAlgorithem(
+                time_stepp, self.all_current_velocity[i], self.all_ever_acc[-2][i], self.all_ever_acc[-1][i]
+                ))
+        self.all_current_velocity=next_vel
+        self.all_current_velocity.append(next_vel)
+        pass
+
+    def Movement_by_Euler(self, time_stepp) -> None:
+        next_pos_list = []
+        next_vel_list = []
+        self.Force_Matrixs()
+        for i in range(len(self.number_of_obj)):
+            next_vel , next_pos = Integration_Schemes.Euler_Algorithm(
+                time_stepp, self.all_current_position[i], self.all_current_velocity[i], self.all_current_acc[i]
+            )
+            next_pos_list.append(next_pos)
+            next_vel_list.append(next_vel)
+        # Updating all variable lists
+        self.all_current_position=next_pos_list
+        self.all_current_velocity=next_vel_list
+        self.all_ever_position.append(next_pos_list)
+        self.all_ever_velocity.append(next_vel_list)
         pass
 
     @njit
-    def Force_Matrix(self):
+    def Force_Matrix(self) -> None:
         """
         Calculates all interactions between all bodies of System resulting in a nxn-Matrix.
-        F_ij is a vector (np.array)! 
+        F_ij is a vector (np.array)! F_ij: "j is pulling i"
+        dumps acceleration values into acc. list
         """
-        all_obj_Force = []  # force matrix of F = [[F_11,F12,..],[F_21,F_22,..]]
+        Force_matrix = []  # force matrix of F = [[F_11,F12,..],[F_21,F_22,..]]
         for i in range(self.number_of_obj):
-            one_obj_Force = []  # list of all forces acting on object i
+            one_obj_Force = []  # row i of matrix; list of all forces acting on object i
             for j in range(i,self.number_of_obj):
                 if j == i:  # here the property of F_ij = -F_ji, F_ii=0 is used via if statements
                     one_obj_Force.append(0)
@@ -56,9 +124,12 @@ class Many_Body_System(object):
                     np.array(Forces.Gravitational_force(
                         self.all_current_position[i],self.all_current_position[j], 
                         self.all_mass[i],self.all_mass[j])))
-                elif j<i:  # F_ji = -F_ij
-                    one_obj_Force.append(-all_obj_Force[i][j])
-        return(all_obj_Force)
+                elif j<i:  # F_ij = -F_ij
+                    one_obj_Force.append(-Force_matrix[i][j])
+            Force_matrix.append(one_obj_Force)
+            self.all_current_acc.append(sum(one_obj_Force)/self.all_mass[i]) 
+        self.all_ever_acc.append(self.all_current_acc)
+        pass
                 
 
     def Initialize_System(self, data_path:str) -> None:
@@ -78,19 +149,22 @@ class Many_Body_System(object):
             self.all_current_position.append(pos)
             self.all_current_velocity.append(vel)
             self.all_mass.append(mass)
-            self.Initializing_Body(pos ,vel, mass, self.obj_names[i])
+            self.Initializing_Object(pos ,vel, mass, self.obj_names[i])
+        self.all_ever_position.append(self.all_current_position)
+        self.all_ever_velocity.append(self.all_current_velocity)
         pass
 
 
     def Initializing_Object(self, position, velocity, mass, name) -> None:
         """
-        Initializes the object of a single body 
+        Initializes the object of a single body - will not be used!
         """
-        one_body = Physical_Obj.Atom(position, velocity, mass, name)
-        self.heavy_objects.append(one_body)
+        #one_body = Atom(position, velocity, mass, name)
+        #self.heavy_objects.append(one_body)
         pass
 
 
 # here I can test my progress
 if __name__ == "__main__":
+
     pass

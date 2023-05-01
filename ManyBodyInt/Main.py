@@ -1,7 +1,7 @@
 import sys , os
 import Forces
 from Global_System import Many_Body_System
-from One_Body import Physical_Obj
+from One_Body import Atom
 
 """
 These are variables to execute my programm, change these for the necessary tasks
@@ -31,5 +31,6 @@ The Code is implemented here
 """
 # Main 
 Solar_System_1 = Many_Body_System()  # creating the object Solarsystem 
-Solar_System_1.Initialize_many_bodies(data_file_1)  # initializing with data_file_1
- 
+Solar_System_1.Initialize_System(data_file_1)  # initializing with data_file_1
+for i in range(Solar_System_1.number_of_obj):
+    print(Solar_System_1.all_ever_position[0][i], Solar_System_1.all_ever_velocity[0][i],Solar_System_1.all_mass[i],Solar_System_1.obj_names[i])

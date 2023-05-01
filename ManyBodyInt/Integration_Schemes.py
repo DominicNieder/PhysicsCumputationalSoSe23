@@ -12,7 +12,7 @@ from numba import njit
 import Forces
 
 @njit
-def Euler_Algorithm(time_stepp:float, pos:np.array, vel:np.array, acc:np.array):
+def Euler_Algorithm(time_stepp:float, pos:np.array, vel:np.array, acc:np.array) -> tuple:
     """
     With current position and velocity and time step 
     returns updated position/velocity.
@@ -23,18 +23,14 @@ def Euler_Algorithm(time_stepp:float, pos:np.array, vel:np.array, acc:np.array):
     return(upd_pos,upd_vel)
 
 @njit 
-def Velvet_Algorithem(time_stepp:float, pos:np.array, vel_0:np.array, acc:np.array, fomer_pos:np.array=None):
+def Verlet_Algorithem(time_stepp:float, pos:np.array, vel_0:np.array, acc:np.array, fomer_pos:np.array) -> tuple:
     """
     Determines position after one time stepp 
     from the former position and current position;
-
     """
-    if fomer_pos==None:
-        return(Velocity_Velvet_posAlgorithem(time_stepp, pos, vel_0, acc))
-    else:
-        upd_pos = 2*pos-fomer_pos + time_stepp*time_stepp*acc
-        upd_vel = (upd_pos-fomer_pos)/2/time_stepp
-        return(upd_pos, upd_vel)
+    upd_pos = 2*pos-fomer_pos + time_stepp*time_stepp*acc
+    upd_vel = (upd_pos-fomer_pos)/2/time_stepp
+    return(upd_pos, upd_vel)
 
 # On the seperation of Velocity Velvet Algorithem into a position update function
 # and velocity update function: 
@@ -42,7 +38,7 @@ def Velvet_Algorithem(time_stepp:float, pos:np.array, vel_0:np.array, acc:np.arr
 # determine the velocity - so I seperated the funktion, so that all positions and the all 
 # velocities could be updated
 @njit
-def Velocity_Velvet_posAlgorithem(time_stepp:float, pos:np.array, vel:np.array, acc:np.array):
+def Velocity_Verlet_posAlgorithem(time_stepp:float, pos:np.array, vel:np.array, acc:np.array) -> np.array:
     """
     Determines only the position after one time stepp from
     current position, current velocity and acceleration
@@ -51,7 +47,7 @@ def Velocity_Velvet_posAlgorithem(time_stepp:float, pos:np.array, vel:np.array, 
     return(upd_pos)
 
 @njit
-def Velocity_Velvet_velAlgorithem(time_stepp:float, vel:np.array, acc:np.array, later_acc:np.array):
+def Velocity_Verlet_velAlgorithem(time_stepp:float, vel:np.array, acc:np.array, later_acc:np.array) -> np.array:
     """
     Determines only the velocity after one time stepp from current postion
     """
