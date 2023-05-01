@@ -1,7 +1,21 @@
 """
-Here functions for reading text/data files are located
+Here functions for reading/writing text/data files are located
 """
 import os
+
+def Creat_New_File(path:str, name_of_file:str = "Simulation", number_of_file:int=0):
+    """
+    Creating a new File called ("path"+"name_of_file"+"number_of_file".txt)
+    added to the name.
+    Note that the .txt will be added automatically
+    """
+    while os.path.exists(path+name_of_file+str(number_of_file)+".txt"):  # iterate number until file does not exist
+        number_of_file +=1
+    file = open(path+name_of_file+str(number_of_file)+".txt", "w")
+    return(file)
+
+def Write_into_File(path:str):
+    pass        
 
 def find_files(path:str) -> list:
     """
@@ -45,7 +59,7 @@ def Read_File_pos_vel_mass(path_1:str):
         groups:list = []  # hold list of list of variables of all objects []
         names:list = []  # the index of names fitts to the variables in groups
         i = 0
-        print("    reading data of file...")
+        print("Reading data of file...")
         for line in data_1:
             pos:list = []
             vel:list = []
@@ -64,10 +78,15 @@ def Read_File_pos_vel_mass(path_1:str):
             group.append(vel)
             group.append(mass)
             groups.append(group)
-        print("    finished reading data!")    
+        print("Finished reading data!")    
     return(groups, names)
 
 
 # here I can try the different functions by them selfes
 if __name__ == "__main__":
+    Test_text = [[0,3,4],[4,7,8],[4,93,9]]
+    TEST=(Creat_New_File(os.path.abspath(os.path.dirname(__file__))))
+    for i in Test_text:
+        TEST.writelines(str(i)+"\n")
+    TEST.close()
     pass

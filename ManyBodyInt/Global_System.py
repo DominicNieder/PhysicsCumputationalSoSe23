@@ -2,8 +2,8 @@
 The Many Body System contains the Object-class of a collection of all bodies. 
 This Object enables the interaction between the single Objects.
 """
-from numba import njit
-import sys
+
+import os
 import numpy as np
 import data_readout as data_readout
 from One_Body import Atom 
@@ -16,16 +16,18 @@ class Many_Body_System(object):
         """
         The System calss object contains all necessary variables of all objects
         """
-        self.heavy_objects = []  # here a list of all the objects are stored
+        self.heavy_objects = []  # here a list of all the objects are stored; NOT IN USE!
+        #self.path = os.path.abspath(os.path.dirname(__file__))
         self.obj_names = []   # names of the objects
         self.all_mass = []  # has all the mass variables of all objects
-        self.number_of_obj:int = None
+        self.number_of_obj:int = None  
         self.all_current_position = []
         self.all_current_velocity = []
         self.all_current_acc = []
         self.all_ever_position = []
         self.all_ever_velocity = []
         self.all_ever_acc = []
+        #self.simulation_result_file_for_ovito = data_readout.Creat_New_File()
         pass
     
     def Update_Movement(self, time_step:float=1,integration_method:str="Velocity Verlet"):
@@ -94,6 +96,9 @@ class Many_Body_System(object):
         pass
 
     def Movement_by_Euler(self, time_step) -> None:
+        """
+        Updates position velocity and acceleration vectors with the Euler integration methode
+        """
         next_pos_list = []
         next_vel_list = []
         self.Force_Matrixs()
@@ -110,12 +115,12 @@ class Many_Body_System(object):
         self.all_ever_velocity.append(next_vel_list)
         pass
 
-    #@njit
     def Force_Matrix(self) -> None:
         """
         Calculates all interactions between all bodies of System resulting in a nxn-Matrix.
         F_ij is a vector (np.array)! F_ij: "j is pulling i"
-        dumps acceleration values into acc. lists (at least of two time stepps needs to be saved)
+        dumps acceleration values into acc. lists (at least of two time stepps needs to be saved).
+        Probably not the most efficiant way...
         """
         Force_matrix = []  # force matrix of F = [[F_11,F12,..],[F_21,F_22,..]]
         for i in range(self.number_of_obj):
@@ -136,7 +141,6 @@ class Many_Body_System(object):
         self.all_ever_acc.append(self.all_current_acc)
         pass
                 
-
     def Initialize_System(self, data_path:str) -> None:
         """
         Identifies all the inital conditions of the many body system;
@@ -159,7 +163,6 @@ class Many_Body_System(object):
         self.all_ever_velocity.append(self.all_current_velocity)
         pass
 
-
     def Initializing_Object(self, position, velocity, mass, name) -> None:
         """
         Initializes the object of a single body - will not be used!
@@ -167,7 +170,8 @@ class Many_Body_System(object):
         one_body = Atom(position, velocity, mass, name)
         self.heavy_objects.append(one_body)
         pass
-
+    
+    
 
 # here I can test my progress
 if __name__ == "__main__":
