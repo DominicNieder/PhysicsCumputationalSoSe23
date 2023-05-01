@@ -28,7 +28,7 @@ def Gravitational_force(pos_self:np.array, pos_2:np.array, mass_self:float, mass
     """
     G = 6.67408*10**(-11)
     r_12_vec:np.array = pos_self-pos_2
-    r_12:float = np.linalg.norm(pos_self-pos_2,pos_self-pos_2)
+    r_12:float = np.linalg.norm(pos_self-pos_2)
     r_12_pow3 = r_12*r_12*r_12
     force =G*mass_2*mass_self/r_12_pow3 *r_12_vec   # calculated via -grad(Gravitation_pot)
 

@@ -28,33 +28,33 @@ class Many_Body_System(object):
         self.all_ever_acc = []
         pass
     
-    def Update_Movement(self, time_stepp:float=1,integration_method:str="Velocity Verlet"):
+    def Update_Movement(self, time_step:float=1,integration_method:str="Velocity Verlet"):
         """
         Moves all objects of the system one time-stepp further
         """
         if integration_method == "Velocity Verlet": 
-            self.Movement_by_Velocity_Verlet(time_stepp)
+            self.Movement_by_Velocity_Verlet(time_step)
         elif integration_method == "Verlet":
-            self.Movement_by_Verlet(time_stepp)
+            self.Movement_by_Verlet(time_step)
         elif integration_method == "Euler":
-            self.Movement_by_Euler(time_stepp)
+            self.Movement_by_Euler(time_step)
     
         pass
 
-    def Movement_by_Verlet(self, time_stepp:float) -> None:
+    def Movement_by_Verlet(self, time_step:float) -> None:
         """
         Updates velocity and position of one time-stepp using the Verlet algorithm.
         The first time stepp needs to be done with Euler or Velocity Verlet
         """
-        self.Force_Matrixs(time_stepp)
+        self.Force_Matrixs(time_step)
         if len(self.all_ever_position) == 0:  # checking if former position is available; 
-                self.Movement_by_Velocity_Verlet(time_stepp)
+                self.Movement_by_Velocity_Verlet(time_step)
         else:
             next_pos_list = []
             next_vel_list = []
             for i in range(self.number_of_obj):  # I Noticed now: Maybe with arrays the formloop can be avoided... I hunch, I dont know yet
                 next_pos,next_vel = Integration_Schemes.Verlet_Algorithem(
-                    time_stepp, self.all_current_position[i], self.all_current_velocity[i], self.all_ever_position[-2][i]
+                    time_step, self.all_current_position[i], self.all_current_velocity[i], self.all_ever_position[-2][i]
                 )
                 next_pos_list.append(next_pos)
                 next_vel_list.append(next_vel)
@@ -64,37 +64,42 @@ class Many_Body_System(object):
             self.all_ever_velocity.append(next_vel_list)
         pass
 
-    def Movement_by_Velocity_Verlet(self, time_stepp) -> None:
+    def Movement_by_Velocity_Verlet(self, time_step) -> None:
         """
         Determines acc andu Updates velocity and postion 
         from timestepp n -> n+1 with Velocity Verlet
         """
         if len(self.all_ever_acc) < len(self.all_current_position):  # force matrix only needs to be calculated for 1. timestepp
-            self.Force_Matrix()      #Appends acceleration of n      
+            self.Force_Matrix()      #Appends acceleration of n    
+            pass
+        # determening position update
         next_pos = []
         for i in range(self.number_of_obj):    
-            next_pos.append(Integration_Schemes.Velocity_Verlet_posAlgorithem(time_stepp,
+            next_pos.append(Integration_Schemes.Velocity_Verlet_posAlgorithem(time_step,
                 self.all_current_position[i], self.all_current_velocity[i], self.all_current_acc[i] 
                 ))
+        # updating position variables
         self.all_current_position = next_pos
         self.all_ever_position.append(self.all_current_position)
         self.Force_Matrix()  # Appends acceleration timestepp of n+1
+        # determening velocity update
         next_vel = []
         for i in range(self.number_of_obj): 
             next_vel.append(Integration_Schemes.Velocity_Verlet_velAlgorithem(
-                time_stepp, self.all_current_velocity[i], self.all_ever_acc[-2][i], self.all_ever_acc[-1][i]
+                time_step, self.all_current_velocity[i], self.all_ever_acc[-2][i], self.all_ever_acc[-1][i]
                 ))
+        # updating velocity variables
         self.all_current_velocity=next_vel
         self.all_current_velocity.append(next_vel)
         pass
 
-    def Movement_by_Euler(self, time_stepp) -> None:
+    def Movement_by_Euler(self, time_step) -> None:
         next_pos_list = []
         next_vel_list = []
         self.Force_Matrixs()
         for i in range(len(self.number_of_obj)):
             next_vel , next_pos = Integration_Schemes.Euler_Algorithm(
-                time_stepp, self.all_current_position[i], self.all_current_velocity[i], self.all_current_acc[i]
+                time_step, self.all_current_position[i], self.all_current_velocity[i], self.all_current_acc[i]
             )
             next_pos_list.append(next_pos)
             next_vel_list.append(next_vel)
@@ -105,12 +110,12 @@ class Many_Body_System(object):
         self.all_ever_velocity.append(next_vel_list)
         pass
 
-    @njit
+    #@njit
     def Force_Matrix(self) -> None:
         """
         Calculates all interactions between all bodies of System resulting in a nxn-Matrix.
         F_ij is a vector (np.array)! F_ij: "j is pulling i"
-        dumps acceleration values into acc. list
+        dumps acceleration values into acc. lists (at least of two time stepps needs to be saved)
         """
         Force_matrix = []  # force matrix of F = [[F_11,F12,..],[F_21,F_22,..]]
         for i in range(self.number_of_obj):
@@ -159,8 +164,8 @@ class Many_Body_System(object):
         """
         Initializes the object of a single body - will not be used!
         """
-        #one_body = Atom(position, velocity, mass, name)
-        #self.heavy_objects.append(one_body)
+        one_body = Atom(position, velocity, mass, name)
+        self.heavy_objects.append(one_body)
         pass
 
 
