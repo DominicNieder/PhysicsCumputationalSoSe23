@@ -57,8 +57,8 @@ class Many_Body_System(object):
                 next_pos,next_vel = Integration_Schemes.Verlet_Algorithem(
                     time_step, np.array(self.all_current_position[i]), np.array(self.all_current_velocity[i]), self.all_ever_position[-2][i]
                 )
-                next_pos_list.append(next_pos)
-                next_vel_list.append(next_vel)
+                next_pos_list.append(next_pos.tolist())
+                next_vel_list.append(next_vel.tolist())
             self.all_current_position = next_pos_list
             self.all_current_velocity = next_vel_list
             self.all_ever_position.append(next_pos_list)
@@ -70,15 +70,18 @@ class Many_Body_System(object):
         Determines acc andu Updates velocity and postion 
         from timestepp n -> n+1 with Velocity Verlet
         """
+        print("Movement_by_Velocity_Verlet:")
         if len(self.all_ever_acc) < len(self.all_current_position):  # force matrix only needs to be calculated for 1. timestepp
             self.Force_Matrix()      #Appends acceleration of n    
             pass
         # determening position update
         next_pos = []
-        for i in range(self.number_of_obj):    
-            next_pos.append(Integration_Schemes.Velocity_Verlet_posAlgorithem(time_step,
+        for i in range(self.number_of_obj):
+            integrate_pos = Integration_Schemes.Velocity_Verlet_posAlgorithem(time_step,
                 np.array(self.all_current_position[i]), np.array(self.all_current_velocity[i]), self.all_current_acc[i] 
-                ))
+                )
+            #integrate_pos = integrate_pos
+            next_pos.append(integrate_pos.tolist())
         # updating position variables
         self.all_current_position = next_pos
         self.all_ever_position.append(self.all_current_position)
@@ -86,9 +89,11 @@ class Many_Body_System(object):
         # determening velocity update
         next_vel = []
         for i in range(self.number_of_obj): 
-            next_vel.append(Integration_Schemes.Velocity_Verlet_velAlgorithem(
+            integrate_vel = Integration_Schemes.Velocity_Verlet_velAlgorithem(
                 time_step, np.array(self.all_current_velocity[i]), self.all_ever_acc[-2][i], self.all_ever_acc[-1][i]
-                ))
+                )
+            #integrate_vel = integrate_vel
+            next_vel.append(integrate_vel.tolist())
         # updating velocity variables
         self.all_current_velocity=next_vel
         self.all_current_velocity.append(next_vel)
@@ -105,8 +110,8 @@ class Many_Body_System(object):
             next_vel , next_pos = Integration_Schemes.Euler_Algorithm(
                 time_step, np.array(self.all_current_position[i]), np.array(self.all_current_velocity[i]), self.all_current_acc[i]
             )
-            next_pos_list.append(next_pos)
-            next_vel_list.append(next_vel)
+            next_pos_list.append(next_pos.tolist())
+            next_vel_list.append(next_vel.tolist())
         # Updating all variable lists
         self.all_current_position=next_pos_list
         self.all_current_velocity=next_vel_list
@@ -164,7 +169,7 @@ class Many_Body_System(object):
 
     def Initializing_Object(self, position, velocity, mass, name) -> None:
         """
-        Initializes the object of a single body - will not be used!
+        Initializes the object of a single body - for now, NOT in use!
         """
         one_body = Atom(position, velocity, mass, name)
         self.heavy_objects.append(one_body)

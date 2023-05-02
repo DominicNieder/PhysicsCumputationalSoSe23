@@ -42,26 +42,23 @@ for j in tqdm(range(number_of_iterations)):
     all_orbitals.write(str(Solar_System_1.all_current_position)+"\n")
 all_orbitals.close()
 
-list_all_plantes_unsorted =[]
+x, y, z = [], [], []
 file = open(pathNname_sim_file, "r")
 
 for line in file:
     l = ast.literal_eval(line)
-    print(l)
-    break
+    x.append(l[3][0])
+    y.append(l[3][1])
+    z.append(l[3][2])
+
+    
 file.close()
 
-"""
-ax = plt.figure().add_subplot(projection='3d')
 
-for i in Solar_System_1.all_ever_position:
-    for j in i:
-        list_all_plantes_unsorted.append(j)
-        all_orbitals.write
-ax.contour(list_all_plantes_unsorted)
+ax = plt.figure().add_subplot(projection='3d')
+ax.plot(x,y,z, "o")
 ax.set_xlabel("X Axis")
 ax.set_ylabel("Y Axis")
 ax.set_zlabel("Z Axis")
 ax.set_title("Solarsystem")
 plt.show()
-"""
