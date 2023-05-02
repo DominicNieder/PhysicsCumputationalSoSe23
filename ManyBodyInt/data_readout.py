@@ -3,7 +3,7 @@ Here functions for reading/writing text/data files are located
 """
 import os
 
-def Creat_New_File(path:str, name_of_file:str = "Simulation", number_of_file:int=0):
+def Creat_New_File(path:str, name_of_file:str = "Simulation", number_of_file:int=0) ->bool:
     """
     Creating a new File called ("path"+"name_of_file"+"number_of_file".txt)
     added to the name.
@@ -11,11 +11,17 @@ def Creat_New_File(path:str, name_of_file:str = "Simulation", number_of_file:int
     """
     while os.path.exists(path+name_of_file+str(number_of_file)+".txt"):  # iterate number until file does not exist
         number_of_file +=1
-    file = open(path+name_of_file+str(number_of_file)+".txt", "w")
-    return(file)
+    location_and_name = path+name_of_file+str(number_of_file)+".txt"
+    file = open(location_and_name, "w")
+    return(file,location_and_name)
 
-def Write_into_File(path:str):
-    pass        
+def Initialize_dataSheet_Ovito(text_wrapper, timestep, number_of_atoms):
+    """
+    Starts the Output format for trajectory readable by visualisation software ovito
+    """
+    text_wrapper.write("ITEM: TIMESTEP\n"+timestep)
+    text_wrapper.write("ITEM: NUMBER OF ATOMS\n"+number_of_atoms)
+    pass
 
 def find_files(path:str) -> list:
     """
@@ -23,7 +29,6 @@ def find_files(path:str) -> list:
     Returns list of str of the name of the files.
     Not needed for Ex. sheet 1
     """
-    path = os.path.abspath(os.path.dirname(__file__))
     with os.scandir(path) as dir:
         files = []
         for entry in dir:
@@ -35,19 +40,23 @@ def find_files(path:str) -> list:
 
 
 # This function is not needed, as all variables are seved in one file now...
-def Read_Dir(path_1:str) -> list:
+def Read_Dir(path:str) -> list:
+    """
+    Identifies all files of the path and reads all files;
+    If its a directory: Identifies all files in directory
+    """
     print("reading directory...")
-    if os.path.isfile(path_1):
+    if os.path.isfile(path):
         print("    found file")
         init_conditions_of_system = Read_File_pos_vel_mass()
         return(init_conditions_of_system)
-    elif os.path.isdir(path_1):
-        file_names = find_files(path_1)
+    elif os.path.isdir(path):
+        file_names = find_files(path)
         numb_of_files = len(file_names)
         print("    files in directory: ",numb_of_files)
         init_of_collection_of_systems = []
         for j in range(numb_of_files):
-            init_of_collection_of_systems.append(Read_File_pos_vel_mass(path_1+"/"+file_names[j]))  # [group]
+            init_of_collection_of_systems.append(Read_File_pos_vel_mass(path+"/"+file_names[j]))  # [group]
         return(init_of_collection_of_systems)
     
 def Read_File_pos_vel_mass(path_1:str):
@@ -84,9 +93,15 @@ def Read_File_pos_vel_mass(path_1:str):
 
 # here I can try the different functions by them selfes
 if __name__ == "__main__":
-    Test_text = [[0,3,4],[4,7,8],[4,93,9]]
-    TEST=(Creat_New_File(os.path.abspath(os.path.dirname(__file__))))
-    for i in Test_text:
-        TEST.writelines(str(i)+"\n")
-    TEST.close()
+    import numpy as np
+    from matplotlib import pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    plt.rcParams["figure.figsize"] = [7.00, 3.50]
+    plt.rcParams["figure.autolayout"] = True
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    data = np.random.random(size=(3, 3, 3))
+    z, x, y = data.nonzero()
+    ax.scatter(x, y, z, c=z, alpha=1)
+    plt.show()
     pass

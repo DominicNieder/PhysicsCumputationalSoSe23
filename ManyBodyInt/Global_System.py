@@ -30,9 +30,9 @@ class Many_Body_System(object):
         #self.simulation_result_file_for_ovito = data_readout.Creat_New_File()
         pass
     
-    def Update_Movement(self, time_step:float=1,integration_method:str="Velocity Verlet"):
+    def Update_Movement(self, time_step:float=1,integration_method:str="Velocity Verlet") -> None:
         """
-        Moves all objects of the system one time-stepp further
+        Moves all objects of the system one timestep further
         """
         if integration_method == "Velocity Verlet": 
             self.Movement_by_Velocity_Verlet(time_step)
@@ -40,7 +40,6 @@ class Many_Body_System(object):
             self.Movement_by_Verlet(time_step)
         elif integration_method == "Euler":
             self.Movement_by_Euler(time_step)
-    
         pass
 
     def Movement_by_Verlet(self, time_step:float) -> None:
@@ -56,7 +55,7 @@ class Many_Body_System(object):
             next_vel_list = []
             for i in range(self.number_of_obj):  # I Noticed now: Maybe with arrays the formloop can be avoided... I hunch, I dont know yet
                 next_pos,next_vel = Integration_Schemes.Verlet_Algorithem(
-                    time_step, self.all_current_position[i], self.all_current_velocity[i], self.all_ever_position[-2][i]
+                    time_step, np.array(self.all_current_position[i]), np.array(self.all_current_velocity[i]), self.all_ever_position[-2][i]
                 )
                 next_pos_list.append(next_pos)
                 next_vel_list.append(next_vel)
@@ -78,7 +77,7 @@ class Many_Body_System(object):
         next_pos = []
         for i in range(self.number_of_obj):    
             next_pos.append(Integration_Schemes.Velocity_Verlet_posAlgorithem(time_step,
-                self.all_current_position[i], self.all_current_velocity[i], self.all_current_acc[i] 
+                np.array(self.all_current_position[i]), np.array(self.all_current_velocity[i]), self.all_current_acc[i] 
                 ))
         # updating position variables
         self.all_current_position = next_pos
@@ -88,7 +87,7 @@ class Many_Body_System(object):
         next_vel = []
         for i in range(self.number_of_obj): 
             next_vel.append(Integration_Schemes.Velocity_Verlet_velAlgorithem(
-                time_step, self.all_current_velocity[i], self.all_ever_acc[-2][i], self.all_ever_acc[-1][i]
+                time_step, np.array(self.all_current_velocity[i]), self.all_ever_acc[-2][i], self.all_ever_acc[-1][i]
                 ))
         # updating velocity variables
         self.all_current_velocity=next_vel
@@ -104,7 +103,7 @@ class Many_Body_System(object):
         self.Force_Matrixs()
         for i in range(len(self.number_of_obj)):
             next_vel , next_pos = Integration_Schemes.Euler_Algorithm(
-                time_step, self.all_current_position[i], self.all_current_velocity[i], self.all_current_acc[i]
+                time_step, np.array(self.all_current_position[i]), np.array(self.all_current_velocity[i]), self.all_current_acc[i]
             )
             next_pos_list.append(next_pos)
             next_vel_list.append(next_vel)
@@ -120,7 +119,7 @@ class Many_Body_System(object):
         Calculates all interactions between all bodies of System resulting in a nxn-Matrix.
         F_ij is a vector (np.array)! F_ij: "j is pulling i"
         dumps acceleration values into acc. lists (at least of two time stepps needs to be saved).
-        Probably not the most efficiant way...
+        Probably not the most efficiant way... Found it: Sum_ij(F_ij*mass_vec)=acc_i, along those lines...
         """
         Force_matrix = []  # force matrix of F = [[F_11,F12,..],[F_21,F_22,..]]
         for i in range(self.number_of_obj):
@@ -132,7 +131,7 @@ class Many_Body_System(object):
                 elif j > i:  # F_ij 
                     one_obj_Force.append(
                     np.array(Forces.Gravitational_force(
-                        self.all_current_position[i],self.all_current_position[j], 
+                        np.array(self.all_current_position[i]),np.array(self.all_current_position[j]), 
                         self.all_mass[i],self.all_mass[j])))
                 elif j<i:  # F_ij = -F_ij
                     one_obj_Force.append(-Force_matrix[i][j])
@@ -151,9 +150,9 @@ class Many_Body_System(object):
         self.obj_names = names
         self.number_of_obj = len(names)
         for i in range(self.number_of_obj):
-            obj_info = init_variables[i]  # [position, velocity, mass]
-            pos = np.array(obj_info[0])  # want to handle pos, vel as np.array
-            vel = np.array(obj_info[1])
+            obj_info = init_variables[i]  
+            pos = obj_info[0]  
+            vel = obj_info[1]
             mass = obj_info[2]
             self.all_current_position.append(pos)
             self.all_current_velocity.append(vel)

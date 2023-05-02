@@ -22,7 +22,7 @@ def Gravitation_pot(pos_self:np.array, pos_2:np.array, mass_1:float, mass_2:floa
     return(e_pot)  # taken from the exercise sheet
 
 @njit 
-def Gravitational_force(pos_self:np.array, pos_2:np.array, mass_self:float, mass_2:float) ->np.array:
+def Gravitational_force(pos_self:np.array, pos_2:np.array, mass_self:float, mass_2:float) -> np.array:
     """
     Calculates and returns the gravitational Force (vector, np.arrayarray) between 2 objects
     """
