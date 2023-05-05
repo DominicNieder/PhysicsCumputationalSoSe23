@@ -1,4 +1,5 @@
 import os  # handeling files
+import numpy as np
 from tqdm import tqdm  # for a nice progress bar 
 import ast  # converts str([...]) to list:[...]
 from Global_System import Many_Body_System  # The System class object
@@ -11,12 +12,12 @@ These are variables to execute my programm, change these for the necessary tasks
 ### Path to Data
 path_to_main = os.path.abspath(os.path.dirname(__file__))  # working directory
 data_directory = path_to_main +"/PlanetData"    # data directory
-data_file_1 = data_directory + "/planets.dat"   # location file 1
+data_file_1 = data_directory + "/planets1.dat"   # location file 1
 data_file_2 = data_directory + "/planets2.dat"  # location file 2
-name_sim_file = "/all_orbital"
+name_sim_file = "/earth_sun"
 ### running options
 time_step:float = 1/2  # day
-simulation_period = 1*365 # days
+simulation_period = 365 # days
 integration_methods = ["Euler", "Verlet", "Velocity Verlet"]
 # leads to 
 number_of_iterations:int = int(simulation_period/time_step)
@@ -40,23 +41,35 @@ for j in tqdm(range(number_of_iterations)):
     Solar_System_1.Update_Movement(time_step)
     #for i in Solar_System_1.all_current_position:
     all_orbitals.write(str(Solar_System_1.all_current_position)+"\n")
+    for i in range(Solar_System_1.number_of_obj):
+        dot = []
+        all_acc = Solar_System_1.all_current_acc[i].tolist()
+        for x in range(2):
+            dot.append(all_acc[x]*Solar_System_1.all_current_velocity[i][x])
+        print('acc * vel', sum(dot))
 all_orbitals.close()
 
-x, y, z = [], [], []
+x_e, y_e, z_e = [], [], []
+x_s, y_s,z_s = [], [], []
 file = open(pathNname_sim_file, "r")
 
 for line in file:
     l = ast.literal_eval(line)
-    x.append(l[3][0])
-    y.append(l[3][1])
-    z.append(l[3][2])
+    x_e.append(l[1][0])
+    y_e.append(l[1][1])
+    z_e.append(l[1][2])
+    x_s.append(l[0][0])
+    y_s.append(l[0][1])
+    z_s.append(l[0][2])
+
 
     
 file.close()
 
 
 ax = plt.figure().add_subplot(projection='3d')
-ax.plot(x,y,z, "o")
+ax.plot(x_e,y_e,z_e, "o", color="blue")
+ax.plot(x_s,y_s,z_s, "o", color="red")
 ax.set_xlabel("X Axis")
 ax.set_ylabel("Y Axis")
 ax.set_zlabel("Z Axis")

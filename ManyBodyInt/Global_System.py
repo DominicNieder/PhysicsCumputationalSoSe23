@@ -70,7 +70,6 @@ class Many_Body_System(object):
         Determines acc andu Updates velocity and postion 
         from timestepp n -> n+1 with Velocity Verlet
         """
-        print("Movement_by_Velocity_Verlet:")
         if len(self.all_ever_acc) < len(self.all_current_position):  # force matrix only needs to be calculated for 1. timestepp
             self.Force_Matrix()      #Appends acceleration of n    
             pass
@@ -129,17 +128,18 @@ class Many_Body_System(object):
         Force_matrix = []  # force matrix of F = [[F_11,F12,..],[F_21,F_22,..]]
         for i in range(self.number_of_obj):
             one_obj_Force = []  # row i of matrix; list of all forces acting on object i
-            for j in range(i,self.number_of_obj):
+            j=0
+            for j in range(self.number_of_obj):
                 if j == i:  # here the property of F_ij = -F_ji, F_ii=0 is used via if statements
-                    one_obj_Force.append(0)
-                    pass
+                    one_obj_Force.append(np.array([0,0,0]))
                 elif j > i:  # F_ij 
                     one_obj_Force.append(
                     np.array(Forces.Gravitational_force(
                         np.array(self.all_current_position[i]),np.array(self.all_current_position[j]), 
                         self.all_mass[i],self.all_mass[j])))
                 elif j<i:  # F_ij = -F_ij
-                    one_obj_Force.append(-Force_matrix[i][j])
+                    one_obj_Force.append(-Force_matrix[j][i])
+                    print()
             Force_matrix.append(one_obj_Force)
             self.all_current_acc.append(sum(one_obj_Force)/self.all_mass[i]) 
         self.all_ever_acc.append(self.all_current_acc)

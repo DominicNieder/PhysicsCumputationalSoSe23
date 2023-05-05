@@ -17,7 +17,7 @@ def Gravitation_pot(pos_self:np.array, pos_2:np.array, mass_1:float, mass_2:floa
     Calculates the gravitation Potential from exercise sheet 1
     """
     G = 6.67408*10**(-11)
-    r_12:float = np.linalg.norm(pos_self-pos_2,pos_self-pos_2)
+    r_12:float = np.linalg.norm(pos_self-pos_2,pos_self-pos_2, ord=2)
     e_pot = -G*mass_1*mass_2/r_12
     return(e_pot)  # taken from the exercise sheet
 
@@ -28,8 +28,8 @@ def Gravitational_force(pos_self:np.array, pos_2:np.array, mass_self:float, mass
     """
     G = 6.67408*10**(-11)
     r_12_vec:np.array = pos_self-pos_2
-    r_12:float = np.linalg.norm(pos_self-pos_2)
-    r_12_pow3 = r_12*r_12*r_12
-    force =G*mass_2*mass_self/r_12_pow3 *r_12_vec   # calculated via -grad(Gravitation_pot)
+    r_12:np.array = np.linalg.norm(pos_self-pos_2)
+    r_12_pow2 = r_12*r_12
+    force =G*mass_2*mass_self/r_12_pow2 *r_12_vec   # calculated via -grad(Gravitation_pot)
 
     return(force)
